@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Event Management</title>
+</head>
+<body>
+<h1>Add Event</h1>
+<form id="eventForm">
+    <label for="name">Event Name:</label>
+    <input type="text" id="name" name="eventName" required><br><br>
+
+    <label for="date">Event Date:</label>
+    <input type="date" id="date" name="eventDate" required><br><br>
+
+    <button type="submit">Add Event</button>
+</form>
+
+<h2>Events List</h2>
+<ul id="eventsList"></ul>
+
+<script>
+    const form = document.getElementById('eventForm');
+    const eventsList = document.getElementById('eventsList');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const eventName = document.getElementById('name').value;
+        const eventDate = document.getElementById('date').value;
+
+        const response = await fetch('/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ eventName, eventDate })
+        });
+
+        if(response.ok){
+            alert('Event Added Successfully!');
+            form.reset();
+            loadEvents();
+        } else {
+            alert('Failed to add event.');
+        }
+    });
+
+    async function loadEvents() {
+        const response = await fetch('/events');
+        const events = await response.json();
+        eventsList.innerHTML = '';
+        events.forEach(event => {
+            const li = document.createElement('li');
+            li.textContent = `${event.id}: ${event.eventName} (${event.eventDate})`;
+            eventsList.appendChild(li);
+        });
+    }
+
+    loadEvents();
+</script>
+</body>
+</html>
